@@ -1,10 +1,6 @@
 package reservations.security.controllers;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,12 +17,6 @@ import reservations.security.services.AuthService;
 public class AuthController {
 
     private AuthService authService;
-
-    @Value("${jwt.tokenSecret}")
-    private String tokenSecret;
-
-    @Value("${jwt.codeSecret}")
-    private String codeSecret;
 
     @Autowired
     public AuthController(AuthService authService) {
@@ -48,15 +38,5 @@ public class AuthController {
     @PostMapping("/token")
     public AuthTokenResponse exchangeAuthCode(@RequestBody AuthTokenRequest authTokenRequest) {
         return authService.exchangeAuthCode(authTokenRequest);
-    }
-
-    @PostMapping("/verify")
-    public String verify(@RequestBody AuthTokenRequest authTokenRequest) {
-
-        DecodedJWT verify =
-                JWT.require(Algorithm.HMAC512(tokenSecret))
-                        .build()
-                        .verify(authTokenRequest.getState());
-        return verify.getSubject();
     }
 }
