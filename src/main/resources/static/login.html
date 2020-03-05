@@ -1,0 +1,22 @@
+<html lang="uk">
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src=login.js></script>
+  <title>Auth code</title>
+</head>
+<body>
+
+<form>
+  <label>
+    <input id="username" width=200px placeholder="username"/>
+  </label>
+  <label>
+    <input id="password" width=200px placeholder="password"/>
+  </label>
+  <button onclick="login(event)"> Login</button>
+</form>
+<br/>
+<label for="code">Code:</label><textarea id="code" width=800px disabled></textarea>
+
+</body>
+</html>
