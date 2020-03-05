@@ -3,7 +3,6 @@ package reservations.security.controllers;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -48,13 +47,7 @@ public class AuthController {
 
     @PostMapping("/token")
     public AuthTokenResponse exchangeAuthCode(@RequestBody AuthTokenRequest authTokenRequest) {
-        String token =
-                JWT.create()
-                        .withSubject("sasd")
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 50000))
-                        .sign(Algorithm.HMAC512(tokenSecret));
-
-        return new AuthTokenResponse(token, null, null, null);
+        return authService.exchangeAuthCode(authTokenRequest);
     }
 
     @PostMapping("/verify")
