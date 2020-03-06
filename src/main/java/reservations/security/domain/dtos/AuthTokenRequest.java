@@ -11,7 +11,6 @@ import reservations.security.domain.GrantType;
 public class AuthTokenRequest {
     @NotEmpty private GrantType grantType;
     private String username;
-    private String redirectUrl;
     private String code;
     private Set<String> scope;
     private String state;

@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AuthCodeResponse {
-    private String responseType;
-    private String url;
-    private String state;
+public class LoginResponse {
+    private String authCode;
+    private String redirectUrl;
 }

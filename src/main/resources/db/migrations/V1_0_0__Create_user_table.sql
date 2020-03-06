@@ -33,6 +33,7 @@ CREATE table authorization_code
 (
     id      bigint(20)  NOT NULL AUTO_INCREMENT,
     user_id bigint(20)  NOT NULL,
+    state  varchar(5) NOT NULL,
     value   varchar(128) NOT NULL,
     expires datetime    NOT NULL,
     PRIMARY KEY (id),

@@ -5,17 +5,16 @@ import com.auth0.jwt.algorithms.Algorithm;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import reservations.security.domain.AuthorizationCodeEntity;
 import reservations.security.domain.UserEntity;
-import reservations.security.domain.dtos.AuthCodeRequest;
-import reservations.security.domain.dtos.AuthCodeResponse;
 import reservations.security.domain.dtos.AuthTokenRequest;
 import reservations.security.domain.dtos.AuthTokenResponse;
+import reservations.security.domain.dtos.LoginResponse;
 import reservations.security.repositories.AuthorizationCodeRepository;
 import reservations.security.repositories.UserRepository;
 
@@ -28,25 +27,22 @@ public class AuthServiceImpl implements AuthService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserRepository userRepository;
     private AuthorizationCodeRepository authorizationCodeRepository;
+    private RestTemplate restTemplate;
 
-    @Autowired
     public AuthServiceImpl(
             BCryptPasswordEncoder bCryptPasswordEncoder,
             UserRepository userRepository,
-            AuthorizationCodeRepository authorizationCodeRepository) {
+            AuthorizationCodeRepository authorizationCodeRepository,
+            RestTemplate restTemplate) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.authorizationCodeRepository = authorizationCodeRepository;
-    }
-
-    @Override
-    public AuthCodeResponse getAuthorizationCode(AuthCodeRequest authCodeRequest) {
-        return new AuthCodeResponse(UUID.randomUUID().toString(), authCodeRequest.getState());
+        this.restTemplate = restTemplate;
     }
 
     @Override
     @Transactional
-    public AuthCodeResponse login(String username, String password) {
+    public LoginResponse login(String username, String password, String redirectUrl) {
         UserEntity userEntity =
                 userRepository.getUserEntityByUsername(username).orElse(new UserEntity());
         AuthorizationCodeEntity authorizationCodeEntity = new AuthorizationCodeEntity();
@@ -65,7 +61,10 @@ public class AuthServiceImpl implements AuthService {
             authorizationCodeEntity.setUser(userEntity);
             authorizationCodeRepository.save(authorizationCodeEntity);
         }
-        return new AuthCodeResponse(authorizationCodeEntity.getValue(), null);
+        LoginResponse loginResponse =
+                new LoginResponse(authorizationCodeEntity.getValue(), redirectUrl);
+        restTemplate.postForLocation(redirectUrl, loginResponse);
+        return loginResponse;
     }
 
     @Override
@@ -90,6 +89,6 @@ public class AuthServiceImpl implements AuthService {
                             .sign(Algorithm.HMAC512(tokenSecret));
             authorizationCodeRepository.delete(authorizationCodeEntity);
         }
-        return new AuthTokenResponse(token, "Bearer", 50000, null);
+        return new AuthTokenResponse(token, "Bearer", 50000, null, authTokenRequest.getState());
     }
 }
